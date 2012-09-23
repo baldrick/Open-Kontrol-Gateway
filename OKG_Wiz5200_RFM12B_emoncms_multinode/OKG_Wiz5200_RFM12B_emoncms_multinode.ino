@@ -31,7 +31,7 @@
 // RFM12B Wireless Config
 //------------------------------------------------------------------------------------------------------
 #define MYNODE 30            // node ID of OKG 
-#define freq RF12_433MHZ     // frequency - must match RFM12B module and emonTx
+#define freq RF12_868MHZ     // frequency - must match RFM12B module and emonTx
 #define group 210            // network group - must match emonTx 
 //------------------------------------------------------------------------------------------------------
  
