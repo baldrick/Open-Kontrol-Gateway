@@ -143,23 +143,28 @@ void loop()
   {
     Serial.print("Data available: "); Serial.print(availableData); Serial.println(" bytes");
     memset(line_buf,NULL,sizeof(line_buf));
+
     int pos = 0;
-    
-    while (client.available()) {
+    while (client.available())
+    {
       char c = client.read();
       line_buf[pos] = c;
       pos++;
+      if (pos % 100 == 0)
+      {
+        Serial.print("Data received: " ); Serial.print(pos); Serial.print(" bytes: "); Serial.println(line_buf);
+      }
     }  
+    Serial.print("All data received: " ); Serial.print(pos); Serial.print(" bytes: "); Serial.println(line_buf);
 
     if (strcmp(line_buf,"ok")==0)
     {
-      Serial.println("OK recieved");
+      Serial.println("OK received");
     }
     else if(line_buf[0]=='t')
     { 
-      Serial.print("Time: ");
-      Serial.println(line_buf);
-    
+      Serial.print("Time: "); Serial.println(line_buf);
+
       char tmp[] = {line_buf[1],line_buf[2]};
       byte hour = atoi(tmp);
       tmp[0] = line_buf[4]; tmp[1] = line_buf[5];
@@ -177,9 +182,9 @@ void loop()
     }
   }
   
-  if (!client.connected() && lastConnected) {
-    Serial.println();
-    Serial.println("disconnecting.");
+  if (!client.connected() && lastConnected)
+  {
+    Serial.println("Disconnecting from CMS.");
     client.stop();
   }
   
@@ -203,6 +208,7 @@ void loop()
         }
 
         str.print("\0");  //  End of json string
+        Serial.print("RF received: "); Serial.println(str.buf);
         data_ready = 1; 
         last_rf = millis(); 
         rf_error=0;
@@ -216,7 +222,8 @@ void loop()
   {
     last_rf = millis();                                                 // reset lastRF timer
     str.reset();                                                        // reset json string
-    str.print("&json={rf_fail:1}\0");                                            // No RF received in 30 seconds so send failure 
+    str.print("&json={rf_fail:1}\0");                                   // No RF received in 30 seconds so send failure
+    Serial.print("No RF for " ); Serial.print(millis() - last_rf); Serial.println("ms");
     data_ready = 1;                                                     // Ok, data is ready
     rf_error=1;
   }
@@ -230,9 +237,9 @@ void loop()
     if (connectStatus)
     {
       client.print("GET "); client.print(apiurl); client.print(str.buf); client.println();
+      Serial.print("Sent data: "); Serial.print(apiurl); Serial.println(str.buf);
     
       delay(300);
-    
       data_ready=0;
       digitalWrite(LEDpin,LOW);		  // turn off status LED to indicate succesful data receive and online posting
     } 
@@ -249,6 +256,7 @@ void loop()
     int connectStatus = client.connect(server, 80);
     if (connectStatus)
     {
+      Serial.println("Requested time");
       client.print("GET "); client.print(timeurl); client.println();
     }
     else
