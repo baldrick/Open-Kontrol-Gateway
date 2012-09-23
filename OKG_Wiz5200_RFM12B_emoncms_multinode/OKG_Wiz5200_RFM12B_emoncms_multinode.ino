@@ -83,6 +83,7 @@ PacketBuffer str;
 
 int data_ready, rf_error;
 unsigned long last_rf, time60s;
+unsigned long last_mem_report;
 boolean lastConnected = false;
 
 char line_buf[50];                        // Used to store line of http reply header
@@ -101,6 +102,7 @@ void setup() {
   rf12_set_cs(9);
   rf12_initialize(MYNODE, freq,group);
   last_rf = millis()-40000;                                       // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
+  last_mem_report = last_rf;
   
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -132,12 +134,30 @@ void setup() {
 }
 //------------------------------------------------------------------------------------------------------
 
+void reportAvailableMemory()
+{
+  int size = 1024;
+  byte *buf;
+
+  while ((buf = (byte *) malloc(--size)) == NULL)
+  {
+    // Loop until we successfully allocate some memory
+  }
+  free(buf); // then free it!
+
+  Serial.print(size); Serial.println(" bytes free.");
+}
 
 //------------------------------------------------------------------------------------------------------
 // LOOP
 //------------------------------------------------------------------------------------------------------
 void loop()
 {
+  if (millis() - last_mem_report > 1000)
+  {
+    reportAvailableMemory();
+    last_mem_report = millis();
+  }
   int availableData = client.available();
   if (availableData)
   {
