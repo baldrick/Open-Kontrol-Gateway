@@ -138,8 +138,10 @@ void setup() {
 //------------------------------------------------------------------------------------------------------
 void loop()
 {
-  if (client.available())
+  int availableData = client.available();
+  if (availableData)
   {
+    Serial.print("Data available: "); Serial.print(availableData); Serial.println(" bytes");
     memset(line_buf,NULL,sizeof(line_buf));
     int pos = 0;
     
@@ -224,9 +226,9 @@ void loop()
  //-----------------------------------------------------------------------------------------------------------------
   if (!client.connected() && data_ready) {
 
-    if (client.connect(server, 80)) {
-      Serial.println();
-      Serial.print("Sent: "); Serial.println(str.buf);
+    int connectStatus = client.connect(server, 80);
+    if (connectStatus)
+    {
       client.print("GET "); client.print(apiurl); client.print(str.buf); client.println();
     
       delay(300);
@@ -234,19 +236,25 @@ void loop()
       data_ready=0;
       digitalWrite(LEDpin,LOW);		  // turn off status LED to indicate succesful data receive and online posting
     } 
-    else {Serial.println("Cant connect to send data"); delay(500); client.stop();}
+    else
+    {
+      Serial.print("Can't connect to send data, error "); Serial.println(connectStatus); delay(500); client.stop();
+    }
   }
 
   if (!client.connected() && ((millis()-time60s)>10000))
   {
     time60s = millis();                                                 // reset lastRF timer
 
-    if (client.connect(server, 80)) {
-      Serial.println();
-      Serial.println("Sent time request");
+    int connectStatus = client.connect(server, 80);
+    if (connectStatus)
+    {
       client.print("GET "); client.print(timeurl); client.println();
     }
-    else {Serial.println("Cant connect to req time"); delay(500); client.stop();}
+    else
+    {
+      Serial.print("Can't connect to request time, error "); Serial.println(connectStatus); delay(500); client.stop();
+    }
 
   }
 
