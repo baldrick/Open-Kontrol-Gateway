@@ -56,7 +56,7 @@ EthernetClient client;
 //------------------------------------------------------------------------------------------------------
 // Open Kontrol Gateway Config
 //------------------------------------------------------------------------------------------------------
-const int LEDpin=17;         //front status LED on OKG
+const int LEDpin=17;         // front status LED on OKG
 //#define SERIALCOMMS          // comment out if you don't want debug output on the serial port
 //------------------------------------------------------------------------------------------------------
 
@@ -130,9 +130,9 @@ void setup() {
   Serial.print("Node: "); 
   Serial.print(MYNODE); 
   Serial.print(" Freq: "); 
-   if (freq == RF12_433MHZ) Serial.print("433Mhz");
-   if (freq == RF12_868MHZ) Serial.print("868Mhz");
-   if (freq == RF12_915MHZ) Serial.print("915Mhz"); 
+  if (freq == RF12_433MHZ) Serial.print("433Mhz");
+  if (freq == RF12_868MHZ) Serial.print("868Mhz");
+  if (freq == RF12_915MHZ) Serial.print("915Mhz");
   Serial.print(" Network: "); 
   Serial.println(group);
   #endif
