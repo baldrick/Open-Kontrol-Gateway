@@ -89,6 +89,15 @@ boolean lastConnected = false;
 
 char line_buf[50];                        // Used to store line of http reply header
 
+void flash()
+{
+  pinMode(LEDpin, OUTPUT);
+  digitalWrite(LEDpin, HIGH);
+  delay(200);
+  pinMode(LEDpin, OUTPUT);
+  digitalWrite(LEDpin, LOW);
+}
+
 //------------------------------------------------------------------------------------------------------
 // SETUP
 //------------------------------------------------------------------------------------------------------
@@ -99,8 +108,10 @@ void setup() {
   #ifdef SERIALCOMMS
   Serial.println("openenergymonitor.org RFM12B > OKG > Wiznet, > emoncms MULTI-NODE");
   #endif
-  pinMode(LEDpin, OUTPUT);
-  digitalWrite(LEDpin,HIGH);
+
+  // Flash twice to indicate setup start.
+  flash();
+  flash();
   
   rf12_set_cs(9);
   rf12_initialize(MYNODE, freq,group);
@@ -136,10 +147,13 @@ void setup() {
   Serial.print(" Network: "); 
   Serial.println(group);
   #endif
-  
-  delay(200);
-  digitalWrite(LEDpin,LOW);	//turn of OKG status LED to indicate setup success 
-  
+
+  // Flash three times then switch off (should be anyway!) to indicate setup success
+  flash();
+  flash();
+  flash();
+  pinMode(LEDpin, OUTPUT);
+  digitalWrite(LEDpin, LOW);
 }
 //------------------------------------------------------------------------------------------------------
 
@@ -321,6 +335,7 @@ void loop()
 
   }
 
+  flash(); // flash once to indicate we've been through the loop
   lastConnected = client.connected();
 }//end loop
 
