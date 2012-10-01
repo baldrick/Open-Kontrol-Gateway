@@ -57,6 +57,7 @@ EthernetClient client;
 // Open Kontrol Gateway Config
 //------------------------------------------------------------------------------------------------------
 const int LEDpin=17;         //front status LED on OKG
+//#define SERIALCOMMS          // comment out if you don't want debug output on the serial port
 //------------------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------------------
@@ -94,8 +95,10 @@ char line_buf[50];                        // Used to store line of http reply he
 void setup() {
 
   Serial.begin(9600);
+  while (!Serial) ;
+  #ifdef SERIALCOMMS
   Serial.println("openenergymonitor.org RFM12B > OKG > Wiznet, > emoncms MULTI-NODE");
-  
+  #endif
   pinMode(LEDpin, OUTPUT);
   digitalWrite(LEDpin,HIGH);
   
@@ -105,11 +108,14 @@ void setup() {
   last_mem_report = last_rf;
   
   if (Ethernet.begin(mac) == 0) {
+    #ifdef SERIALCOMMS
     Serial.println("Failed to configure Ethernet using DHCP");
+    #endif
     Ethernet.begin(mac, ip);                                      //configure manually 
   }
   
   // print your local IP address:
+  #ifdef SERIALCOMMS
   Serial.print("Local IP address: ");
   for (byte thisByte = 0; thisByte < 4; thisByte++) {
     // print the value of each byte of the IP address:
@@ -117,8 +123,10 @@ void setup() {
     Serial.print("."); 
   }
   Serial.println();
+  #endif
   
  // print RFM12B settings 
+  #ifdef SERIALCOMMS
   Serial.print("Node: "); 
   Serial.print(MYNODE); 
   Serial.print(" Freq: "); 
@@ -127,6 +135,7 @@ void setup() {
    if (freq == RF12_915MHZ) Serial.print("915Mhz"); 
   Serial.print(" Network: "); 
   Serial.println(group);
+  #endif
   
   delay(200);
   digitalWrite(LEDpin,LOW);	//turn of OKG status LED to indicate setup success 
@@ -136,6 +145,7 @@ void setup() {
 
 void reportAvailableMemory()
 {
+  #ifdef SERIALCOMMS // no point doing this unless we can report it ;-)
   int size = 1024;
   byte *buf;
 
@@ -146,6 +156,7 @@ void reportAvailableMemory()
   free(buf); // then free it!
 
   Serial.print(size); Serial.println(" bytes free.");
+  #endif
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -161,7 +172,9 @@ void loop()
   int availableData = client.available();
   if (availableData)
   {
+    #ifdef SERIALCOMMS
     Serial.print("Data available: "); Serial.print(availableData); Serial.println(" bytes");
+    #endif
     memset(line_buf,NULL,sizeof(line_buf));
 
     int pos = 0;
@@ -170,20 +183,28 @@ void loop()
       char c = client.read();
       line_buf[pos] = c;
       pos++;
+      #ifdef SERIALCOMMS
       if (pos % 100 == 0)
       {
         Serial.print("Data received: " ); Serial.print(pos); Serial.print(" bytes: "); Serial.println(line_buf);
       }
-    }  
+      #endif
+    }
+    #ifdef SERIALCOMMS
     Serial.print("All data received: " ); Serial.print(pos); Serial.print(" bytes: "); Serial.println(line_buf);
+    #endif
 
     if (strcmp(line_buf,"ok")==0)
     {
+      #ifdef SERIALCOMMS
       Serial.println("OK received");
+      #endif
     }
     else if(line_buf[0]=='t')
-    { 
+    {
+      #ifdef SERIALCOMMS
       Serial.print("Time: "); Serial.println(line_buf);
+      #endif
 
       char tmp[] = {line_buf[1],line_buf[2]};
       byte hour = atoi(tmp);
@@ -204,7 +225,9 @@ void loop()
   
   if (!client.connected() && lastConnected)
   {
+    #ifdef SERIALCOMMS
     Serial.println("Disconnecting from CMS.");
+    #endif
     client.stop();
   }
   
@@ -228,7 +251,9 @@ void loop()
         }
 
         str.print("\0");  //  End of json string
+        #ifdef SERIALCOMMS
         Serial.print("RF received: "); Serial.println(str.buf);
+        #endif
         data_ready = 1; 
         last_rf = millis(); 
         rf_error=0;
@@ -243,7 +268,9 @@ void loop()
     last_rf = millis();                                                 // reset lastRF timer
     str.reset();                                                        // reset json string
     str.print("&json={rf_fail:1}\0");                                   // No RF received in 30 seconds so send failure
+    #ifdef SERIALCOMMS
     Serial.print("No RF for " ); Serial.print(millis() - last_rf); Serial.println("ms");
+    #endif
     data_ready = 1;                                                     // Ok, data is ready
     rf_error=1;
   }
@@ -257,7 +284,9 @@ void loop()
     if (connectStatus)
     {
       client.print("GET "); client.print(apiurl); client.print(str.buf); client.println();
+      #ifdef SERIALCOMMS
       Serial.print("Sent data: "); Serial.print(apiurl); Serial.println(str.buf);
+      #endif
     
       delay(300);
       data_ready=0;
@@ -265,7 +294,9 @@ void loop()
     } 
     else
     {
+      #ifdef SERIALCOMMS
       Serial.print("Can't connect to send data, error "); Serial.println(connectStatus); delay(500); client.stop();
+      #endif
     }
   }
 
@@ -276,12 +307,16 @@ void loop()
     int connectStatus = client.connect(server, 80);
     if (connectStatus)
     {
+      #ifdef SERIALCOMMS
       Serial.println("Requested time");
+      #endif
       client.print("GET "); client.print(timeurl); client.println();
     }
     else
     {
+      #ifdef SERIALCOMMS
       Serial.print("Can't connect to request time, error "); Serial.println(connectStatus); delay(500); client.stop();
+      #endif
     }
 
   }
