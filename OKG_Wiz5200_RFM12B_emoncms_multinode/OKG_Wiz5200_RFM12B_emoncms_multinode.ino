@@ -279,12 +279,12 @@ void loop()
   //-----------------------------------------------------------------------------------------------------------------
   if ((millis()-last_rf)>30000)
   {
-    last_rf = millis();                                                 // reset lastRF timer
-    str.reset();                                                        // reset json string
-    str.print("&json={rf_fail:1}\0");                                   // No RF received in 30 seconds so send failure
     #ifdef SERIALCOMMS
     Serial.print("No RF for " ); Serial.print(millis() - last_rf); Serial.println("ms");
     #endif
+    last_rf = millis();                                                 // reset lastRF timer
+    str.reset();                                                        // reset json string
+    str.print("&json={rf_fail:1}\0");                                   // No RF received in 30 seconds so send failure
     data_ready = 1;                                                     // Ok, data is ready
     rf_error=1;
   }
