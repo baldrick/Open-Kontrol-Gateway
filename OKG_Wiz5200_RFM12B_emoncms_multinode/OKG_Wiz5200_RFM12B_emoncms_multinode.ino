@@ -103,7 +103,7 @@ void flash()
 //------------------------------------------------------------------------------------------------------
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) ;
   #ifdef SERIALCOMMS
   Serial.println("openenergymonitor.org RFM12B > OKG > Wiznet, > emoncms MULTI-NODE");
