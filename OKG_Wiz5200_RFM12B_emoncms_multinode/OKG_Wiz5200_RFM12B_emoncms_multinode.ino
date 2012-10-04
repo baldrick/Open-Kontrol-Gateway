@@ -71,11 +71,12 @@ class PacketBuffer : public Print
     {
     }
 
-    const char* buffer()
+    const char* buffer() const
     {
       return buf;
     }
 
+    const byte length() const
     {
       return fill;
     }
@@ -94,9 +95,9 @@ class PacketBuffer : public Print
       }
     }
 
+  private:
     byte fill;
     char buf[150];
-    private:
 };
 
 PacketBuffer str;
@@ -290,7 +291,7 @@ void loop()
 
       str.print("\0");  //  End of json string
       #ifdef SERIALCOMMS
-      Serial.print("RF received: "); Serial.println(str.buf);
+      Serial.print("RF received: "); Serial.println(str.buffer());
       #endif
       data_ready = 1;
       last_rf = millis();
@@ -321,9 +322,9 @@ void loop()
     int connectStatus = client.connect(server, 80);
     if (connectStatus)
     {
-      client.print("GET "); client.print(apiurl); client.print(str.buf); client.println();
+      client.print("GET "); client.print(apiurl); client.print(str.buffer()); client.println();
       #ifdef SERIALCOMMS
-      Serial.print("Sent data: "); Serial.print(apiurl); Serial.println(str.buf);
+      Serial.print("Sent data: "); Serial.print(apiurl); Serial.println(str.buffer());
       #endif
     
       delay(300);
