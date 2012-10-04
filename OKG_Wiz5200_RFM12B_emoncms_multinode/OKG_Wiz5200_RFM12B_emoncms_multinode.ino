@@ -244,7 +244,7 @@ void loop()
       Serial.print("Time: "); Serial.println(line_buf);
       #endif
 
-      char tmp[] = {line_buf[1],line_buf[2]};
+      char tmp[] = {line_buf[1],line_buf[2],0};
       byte hour = atoi(tmp);
       tmp[0] = line_buf[4]; tmp[1] = line_buf[5];
       byte minute = atoi(tmp);
@@ -253,7 +253,7 @@ void loop()
 
       if (hour>0 || minute>0 || second>0) 
       {  
-        char data[] = {'t',hour,minute,second};
+        char data[] = {'t',hour,minute,second,0};
         int i = 0; while (!rf12_canSend() && i<10) {rf12_recvDone(); i++;}
         rf12_sendStart(0, data, sizeof data);
         rf12_sendWait(0);
