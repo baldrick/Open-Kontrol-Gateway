@@ -219,12 +219,6 @@ void loop()
     while (client.available())
     {
       line_buf[pos++] = client.read();
-      #ifdef SERIALCOMMS
-      if (pos % 100 == 0)
-      {
-        Serial.print("Data received: " ); Serial.print(pos); Serial.print(" bytes: "); Serial.println(line_buf);
-      }
-      #endif
     }
     #ifdef SERIALCOMMS
     Serial.print("All data received: " ); Serial.print(pos); Serial.print(" bytes: "); Serial.println(line_buf);
