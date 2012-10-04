@@ -213,8 +213,8 @@ void loop()
     #ifdef SERIALCOMMS
     Serial.print("Data available: "); Serial.print(availableData); Serial.println(" bytes");
     #endif
-    memset(line_buf,NULL,sizeof(line_buf));
 
+    memset(line_buf,NULL,sizeof(line_buf));
     int pos = 0;
     while (client.available())
     {
@@ -254,7 +254,12 @@ void loop()
       if (hour>0 || minute>0 || second>0) 
       {  
         char data[] = {'t',hour,minute,second,0};
-        int i = 0; while (!rf12_canSend() && i<10) {rf12_recvDone(); i++;}
+        int i = 0;
+        while (!rf12_canSend() && i<10)
+        {
+          rf12_recvDone();
+          i++;
+        }
         rf12_sendStart(0, data, sizeof data);
         rf12_sendWait(0);
       }
