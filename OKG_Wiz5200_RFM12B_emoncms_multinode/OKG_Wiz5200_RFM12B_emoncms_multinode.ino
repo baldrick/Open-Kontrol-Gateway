@@ -300,6 +300,12 @@ void loop()
       last_rf = millis();
       rf_error=0;
     }
+    else
+    {
+      #ifdef SERIALCOMMS
+      Serial.print("RF received but CRC / hdr failed, rf12_crc="); Serial.print(rf12_crc); Serial.print(", rf12_hdr="); Serial.println(rf12_hdr);
+      #endif
+    }
   }
 
   //-----------------------------------------------------------------------------------------------------------------
