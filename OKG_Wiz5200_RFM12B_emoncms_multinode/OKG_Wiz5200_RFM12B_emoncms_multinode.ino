@@ -155,7 +155,7 @@ void setup()
   {
     // print the value of each byte of the IP address:
     Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print("."); 
+    if (thisByte < 3) Serial.print(".");
   }
   Serial.println();
   #endif
