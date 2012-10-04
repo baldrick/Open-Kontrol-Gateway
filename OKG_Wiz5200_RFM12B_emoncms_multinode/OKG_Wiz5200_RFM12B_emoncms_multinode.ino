@@ -63,23 +63,44 @@ const int LEDpin=17;         // front status LED on OKG
 //------------------------------------------------------------------------------------------------------
 // The PacketBuffer class is used to generate the json string that is send via ethernet - JeeLabs
 //------------------------------------------------------------------------------------------------------
-class PacketBuffer : public Print {
-public:
-    PacketBuffer () : fill (0) {}
-    const char* buffer() { return buf; }
-    byte length() { return fill; }
+class PacketBuffer : public Print
+{
+  public:
+    PacketBuffer()
+      : fill(0)
+    {
+    }
+
+    const char* buffer()
+    {
+      return buf;
+    }
+
+    {
+      return fill;
+    }
+
     void reset()
     { 
       memset(buf,NULL,sizeof(buf));
       fill = 0; 
     }
+
     virtual size_t write (uint8_t ch)
-        { if (fill < sizeof buf) buf[fill++] = ch; }
+    {
+      if (fill < sizeof buf)
+      {
+        buf[fill++] = ch;
+      }
+    }
+
     byte fill;
     char buf[150];
     private:
 };
+
 PacketBuffer str;
+
 //--------------------------------------------------------------------------------------------------------
 
 int data_ready, rf_error;
@@ -101,8 +122,8 @@ void flash()
 //------------------------------------------------------------------------------------------------------
 // SETUP
 //------------------------------------------------------------------------------------------------------
-void setup() {
-
+void setup()
+{
   Serial.begin(115200);
   while (!Serial) ;
   #ifdef SERIALCOMMS
@@ -118,7 +139,8 @@ void setup() {
   last_rf = millis()-40000;                                       // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
   last_mem_report = last_rf;
   
-  if (Ethernet.begin(mac) == 0) {
+  if (Ethernet.begin(mac) == 0)
+  {
     #ifdef SERIALCOMMS
     Serial.println("Failed to configure Ethernet using DHCP");
     #endif
@@ -128,15 +150,16 @@ void setup() {
   // print your local IP address:
   #ifdef SERIALCOMMS
   Serial.print("Local IP address: ");
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
+  for (byte thisByte = 0; thisByte < 4; thisByte++)
+  {
     // print the value of each byte of the IP address:
     Serial.print(Ethernet.localIP()[thisByte], DEC);
     Serial.print("."); 
   }
   Serial.println();
   #endif
-  
- // print RFM12B settings 
+
+  // print RFM12B settings
   #ifdef SERIALCOMMS
   Serial.print("Node: "); 
   Serial.print(MYNODE); 
@@ -248,32 +271,33 @@ void loop()
   //-----------------------------------------------------------------------------------------------------------------
   // 1) Receive date from emonTx via RFM12B
   //-----------------------------------------------------------------------------------------------------------------
-  if (rf12_recvDone()){      
-      if (rf12_crc == 0 && (rf12_hdr & RF12_HDR_CTL) == 0)
-      {
-        int node_id = (rf12_hdr & 0x1F);
-        byte n = rf12_len;
-         
-        str.reset();
-        str.print("&node=");  str.print(node_id);
-        str.print("&csv=");
-        for (byte i=0; i<n; i+=2)
-        {
-          int num = ((unsigned char)rf12_data[i+1] << 8 | (unsigned char)rf12_data[i]);
-          if (i) str.print(",");
-          str.print(num);
-        }
+  if (rf12_recvDone())
+  {
+    if (rf12_crc == 0 && (rf12_hdr & RF12_HDR_CTL) == 0)
+    {
+      int node_id = (rf12_hdr & 0x1F);
+      byte n = rf12_len;
 
-        str.print("\0");  //  End of json string
-        #ifdef SERIALCOMMS
-        Serial.print("RF received: "); Serial.println(str.buf);
-        #endif
-        data_ready = 1; 
-        last_rf = millis(); 
-        rf_error=0;
+      str.reset();
+      str.print("&node=");  str.print(node_id);
+      str.print("&csv=");
+      for (byte i=0; i<n; i+=2)
+      {
+        int num = ((unsigned char)rf12_data[i+1] << 8 | (unsigned char)rf12_data[i]);
+        if (i) str.print(",");
+        str.print(num);
       }
+
+      str.print("\0");  //  End of json string
+      #ifdef SERIALCOMMS
+      Serial.print("RF received: "); Serial.println(str.buf);
+      #endif
+      data_ready = 1;
+      last_rf = millis();
+      rf_error=0;
+    }
   }
-     
+
   //-----------------------------------------------------------------------------------------------------------------
   // 2) If no data is recieved from rf12 emoncms is updated every 30s with RFfail = 1 indicator for debugging
   //-----------------------------------------------------------------------------------------------------------------
@@ -289,11 +313,11 @@ void loop()
     rf_error=1;
   }
 
- //-----------------------------------------------------------------------------------------------------------------
- // 3) Post Data
- //-----------------------------------------------------------------------------------------------------------------
-  if (!client.connected() && data_ready) {
-
+  //-----------------------------------------------------------------------------------------------------------------
+  // 3) Post Data
+  //-----------------------------------------------------------------------------------------------------------------
+  if (!client.connected() && data_ready)
+  {
     int connectStatus = client.connect(server, 80);
     if (connectStatus)
     {
@@ -332,7 +356,6 @@ void loop()
       Serial.print("Can't connect to request time, error "); Serial.println(connectStatus); delay(500); client.stop();
       #endif
     }
-
   }
 
   flash(); // flash once to indicate we've been through the loop
