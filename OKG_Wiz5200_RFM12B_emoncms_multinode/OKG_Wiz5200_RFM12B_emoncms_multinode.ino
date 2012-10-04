@@ -262,6 +262,12 @@ void loop()
         rf12_sendWait(0);
       }
     }
+    else
+    {
+      #ifdef SERIALCOMMS
+      Serial.print("Unknown message received: "); Serial.println(line_buf);
+      #endif
+    }
   }
   
   if (!client.connected() && lastConnected)
