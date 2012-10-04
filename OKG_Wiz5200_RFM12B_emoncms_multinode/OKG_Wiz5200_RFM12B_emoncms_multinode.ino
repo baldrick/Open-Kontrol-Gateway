@@ -218,9 +218,7 @@ void loop()
     int pos = 0;
     while (client.available())
     {
-      char c = client.read();
-      line_buf[pos] = c;
-      pos++;
+      line_buf[pos++] = client.read();
       #ifdef SERIALCOMMS
       if (pos % 100 == 0)
       {
